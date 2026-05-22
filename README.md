@@ -127,11 +127,9 @@ Details can be find in notebooks/feature_engineering_and_modeling.ipynb
 
 XGBoost was selected as the final classification model because it is well suited for this project’s data structure and modeling objective. The dataset contains a mix of numerical, categorical, sparse, and highly nonlinear features, including age, work intensity, education, occupation, tax filing status, and investment-related variables. XGBoost can capture nonlinear relationships and feature interactions more effectively than a linear model such as Logistic Regression.
 
-This was important because EDA showed several nonlinear patterns. For example, high-income individuals were concentrated in certain age ranges, were more likely to work a full year, and were more likely to have capital gains or dividend income. These relationships are not always linear, and tree-based boosting models can learn threshold-based patterns such as `weeks_worked_in_year = 52`, `capital_gains > 0`, or specific education and occupation groups.
-
 XGBoost also performs well on imbalanced classification problems when combined with appropriate sample weighting and threshold tuning. In this project, the high-income class represented only about 6.3% of the dataset, so I optimized the model using PR-AUC and tuned the decision threshold using positive-class F1 instead of relying on accuracy or the default 0.5 threshold.
 
-Compared with Logistic Regression, XGBoost provided stronger predictive performance while still remaining interpretable through SHAP analysis. SHAP values were used to identify the most important feature drivers, such as weeks worked, age bucket, tax filer status, education, occupation, and investment-income features. Therefore, XGBoost offered a strong balance between predictive power, flexibility, and interpretability for this income classification task.
+In addition, XGBoost provided stronger predictive performance while still remaining interpretable through SHAP analysis. SHAP values were used to identify the most important feature drivers, such as weeks worked, age bucket, tax filer status, education, occupation, and investment-income features. Therefore, XGBoost offered a strong balance between predictive power, flexibility, and interpretability for this income classification task.
 ### 9.1 Baseline XGBoost
 A baseline weighted XGBoost model was trained with n_estimators = 800, learning_rate = 0.03, max_depth = 4, and eval_metric = aucpr.
 | Metric | Value |
