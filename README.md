@@ -28,21 +28,34 @@ The target variable was converted into a binary label:
 
 This shows a strong class imbalance, so model evaluation focused on PR-AUC, precision, recall, and positive-class F1 rather than accuracy alone.
 ## 3. Data Cleaning
+Details can be find in notebooks/EDA.ipynb
 Duplicate removal: Exact duplicate rows were removed from the dataset.
 Missing value handling: The only column with missing values was hispanic_origin. Missing values were filled with "?" to match the dataset’s existing unknown-value convention.
 Target encoding: The original income label was converted into a binary target variable.
 Sampling weight separation: The Census weight column was removed from the feature set and stored separately as a sample weight. This avoids treating survey sampling weight as a predictive customer attribute.
 ## 4. Exploratory Data Analysis Findings
+Details can be find in notebooks/EDA.ipynb
 ### 4.1 Class Imbalance
 The high-income class is rare, representing only about 6.3% of the data. A model could achieve high accuracy by predicting most records as low income while still performing poorly on the business objective: identifying high-income individuals.
 ### 4.2 Age
 Age shows a nonlinear relationship with income. Younger individuals and children are much less likely to be in the high-income group, while working-age adults are more represented among high-income records. Therefore, age was converted into age buckets instead of relying only on the raw numeric age.
+<img width="790" height="490" alt="image" src="https://github.com/user-attachments/assets/7be139b6-eff4-4d35-abb4-6c8d6f6c46b5" />
+<img width="790" height="490" alt="image" src="https://github.com/user-attachments/assets/72f8c2eb-70e3-4c20-80fc-2bdf1f624d4f" />
+Fig.1 Age distribution (upper) and boxplot (lower) by income group. 
 ### 4.3 Work Intensity
 weeks_worked_in_year is one of the most important features. The low-income group contains many records with 0 weeks worked, while the high-income group is heavily concentrated around 52 weeks worked. This motivated the creation of work-intensity features such as worked_none_year, worked_full_year, and bucketed weeks-worked indicators.
+<img width="790" height="490" alt="image" src="https://github.com/user-attachments/assets/566f89c5-47a5-4ab2-8f99-9f0150fd95f2" />
+<img width="790" height="490" alt="image" src="https://github.com/user-attachments/assets/056e859f-279c-4b5d-91db-7fc553825374" />
+Fig.2 Weeks worked in year distribution (upper) and boxplot (lower) by income group. 
 ### 4.4 Money and Investment Features
 Money-related columns such as wage_per_hour, capital_gains, capital_losses, and dividends_from_stocks are highly zero-inflated and right-skewed. Both binary indicators and log-transformed versions were created so the model can capture whether a person has an income/investment source and the magnitude of that value.
+<img width="790" height="490" alt="image" src="https://github.com/user-attachments/assets/5a5c89d0-c97a-47b8-a615-f5720c4dd0f7" />
+<img width="790" height="490" alt="image" src="https://github.com/user-attachments/assets/6b9d65a7-967b-41c1-a74d-59cb934f4a92" />
+Fig.3 Money and Investment example:  wage per hour distribution (upper) and boxplot (lower) by income group. 
 ### 4.5 Categorical Features
 Several categorical features showed strong separation between income groups, including education, marital_stat, class_of_worker, major_industry_code, major_occupation_code, full_or_part_time_employment_stat, tax_filer_stat, and detailed_household_summary_in_household. Other features were excluded because they were dominated by “Not in universe” / “?”, overly sparse, or redundant with stronger features.
+<img width="989" height="490" alt="image" src="https://github.com/user-attachments/assets/6e895725-601b-4b07-aaa9-f141ac9cb1fd" />
+Fig.4 Categorical feature example:  veterans Benefits classes by income group. 
 ## 5. Sensitive Features
 To reduce fairness and compliance risk, the following sensitive or sensitive-adjacent variables were excluded from final model training:
 race
@@ -81,6 +94,7 @@ Several categorical variables were grouped into broader categories before one-ho
 | fill_inc_questionnaire_for_veteran's_admin | overwhelmingly “Not in universe” |
 
 ## 8. Model Training Approach
+Details can be find in notebooks/feature_engineering_and_modeling.ipynb
 The data was split into train, validation, and test sets. The Census sampling weight was used as sample_weight rather than as a model feature. To address class imbalance, the training weight combined Census sampling weight and class-balanced weight.
 | Split | Rows | Percentage |
 | --- | --- | --- |
@@ -89,6 +103,14 @@ The data was split into train, validation, and test sets. The Census sampling we
 | Test | 39,259 | 20% |
 
 ## 9. XGBoost Model
+Details can be find in notebooks/feature_engineering_and_modeling.ipynb
+XGBoost was selected as the final classification model because it is well suited for this project’s data structure and modeling objective. The dataset contains a mix of numerical, categorical, sparse, and highly nonlinear features, including age, work intensity, education, occupation, tax filing status, and investment-related variables. XGBoost can capture nonlinear relationships and feature interactions more effectively than a linear model such as Logistic Regression.
+
+This was important because EDA showed several nonlinear patterns. For example, high-income individuals were concentrated in certain age ranges, were more likely to work a full year, and were more likely to have capital gains or dividend income. These relationships are not always linear, and tree-based boosting models can learn threshold-based patterns such as `weeks_worked_in_year = 52`, `capital_gains > 0`, or specific education and occupation groups.
+
+XGBoost also performs well on imbalanced classification problems when combined with appropriate sample weighting and threshold tuning. In this project, the high-income class represented only about 6.3% of the dataset, so I optimized the model using PR-AUC and tuned the decision threshold using positive-class F1 instead of relying on accuracy or the default 0.5 threshold.
+
+Compared with Logistic Regression, XGBoost provided stronger predictive performance while still remaining interpretable through SHAP analysis. SHAP values were used to identify the most important feature drivers, such as weeks worked, age bucket, tax filer status, education, occupation, and investment-income features. Therefore, XGBoost offered a strong balance between predictive power, flexibility, and interpretability for this income classification task.
 ### 9.1 Baseline XGBoost
 A baseline weighted XGBoost model was trained with n_estimators = 800, learning_rate = 0.03, max_depth = 4, and eval_metric = aucpr.
 | Metric | Value |
@@ -109,6 +131,7 @@ Optuna was used to tune XGBoost hyperparameters using validation PR-AUC as the o
 | reg_alpha | 2.9770 |
 
 ## 10. Threshold Tuning
+Details can be find in notebooks/feature_engineering_and_modeling.ipynb
 Because the high-income class is rare, the default 0.5 threshold is not necessarily optimal. The validation set was used to choose the probability threshold that maximized positive-class F1.
 | Metric | Value |
 | --- | --- |
@@ -119,6 +142,7 @@ Because the high-income class is rare, the default 0.5 threshold is not necessar
 
 A top-decile targeting analysis was also performed. When targeting the top 10% highest-probability records, the model reached a probability cutoff of 0.742, Precision@Top10% of 0.465, and Recall@Top10% of 0.741.
 ## 11. Final Test Performance
+Details can be find in notebooks/feature_engineering_and_modeling.ipynb
 The final tuned XGBoost model was evaluated once on the held-out test set using the selected validation threshold.
 | Metric | Test Result |
 | --- | --- |
@@ -135,6 +159,7 @@ The final tuned XGBoost model was evaluated once on the held-out test set using 
 
 The model performs very well in ranking individuals by high-income likelihood, as shown by the high ROC-AUC and strong PR-AUC for an imbalanced dataset. The tuned threshold provides a reasonable tradeoff between precision and recall for the high-income class.
 ## 12. Model Interpretation with SHAP
+Details can be find in notebooks/feature_engineering_and_modeling.ipynb
 SHAP was used to interpret the final XGBoost model. The most important individual features included:
 scaled_weeks_worked_in_year
 age_bucket_0_17
@@ -149,6 +174,8 @@ scaled_capital_gains
 worked_full_year
 marital_stat_grouped_married
 major_occupation_code_adm_support_including_clerical
+<img width="792" height="590" alt="image" src="https://github.com/user-attachments/assets/1ce11448-9206-4084-9793-5f05355597b3" />
+Fig.5 Feature importance ranking indicated by SHAP. 
 | Feature Group | Interpretation |
 | --- | --- |
 | Age bucket | Life stage is highly predictive |
@@ -163,6 +190,7 @@ major_occupation_code_adm_support_including_clerical
 
 Overall, the model relies most heavily on work intensity, age/life stage, tax filing status, education, occupation, household structure, and investment-related features.
 ## 13. Customer Segmentation
+Details can be find in notebooks/feature_engineering_and_modeling.ipynb
 Customer segmentation was performed using the engineered feature matrix. The income label was not used to create the clusters, but it was used afterward to profile the segments. A 20,000-row sample was used for visualization and method comparison. The high-dimensional feature matrix was projected into lower-dimensional space using TruncatedSVD.
 | Method | Silhouette Score | Number of Clusters |
 | --- | --- | --- |
@@ -170,9 +198,13 @@ Customer segmentation was performed using the engineered feature matrix. The inc
 | K-means | 0.315 | 4 |
 | Agglomerative Clustering | 0.298 | 4 |
 | Gaussian Mixture Model | 0.269 | 4 |
+<img width="790" height="590" alt="image" src="https://github.com/user-attachments/assets/f4d14cbc-1284-4b67-9543-f013d4c748e5" />
+<img width="790" height="590" alt="image" src="https://github.com/user-attachments/assets/e84745a7-c8b2-4661-8df9-55dde872fa53" />
+Fig.6 K-means (upper) and BIRCH (lower) customer segmentation visualized in reduced feature space 
 
 Although BIRCH had the highest silhouette score, K-means was selected as the final segmentation model because it is scalable, stable, and easier to explain in a business setting.
 ## 14. Segment Profiles
+Details can be find in notebooks/feature_engineering_and_modeling.ipynb
 The final K-means model produced 4 customer segments. Segment names are business-friendly interpretations based on the segment profile statistics, not labels generated directly by the algorithm.
 ### Segment 0: Older Non-Working / Low-Income Segment
 | Profile Attribute | Value |
