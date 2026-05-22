@@ -182,9 +182,9 @@ Details can be find in notebooks/feature_engineering_and_modeling.ipynb
 SHAP was used to interpret the final XGBoost model. The most important individual features included:
 scaled_weeks_worked_in_year, age_bucket_0_17, tax_filer_stat_nonfiler, detailed_household_summary_in_household_grouped, scaled_num_persons_worked_for_employer, scaled_dividends_from_stocks, education_grouped_bachelors, education_grouped_less_than_high_school, education_grouped_graduate_degree, scaled_capital_gains, worked_full_year, marital_stat_grouped_married, and major_occupation_code_adm_support_including_clerical
 
-<img width="792" height="590" alt="image" src="https://github.com/user-attachments/assets/1ce11448-9206-4084-9793-5f05355597b3" />
+<img width="792" height="590" alt="image" src="https://github.com/user-attachments/assets/4637782a-26fc-41ab-b827-aad0ab6afab7" />
 
-Fig.5 Feature importance ranking indicated by SHAP. 
+Fig.5 Feature group importance ranking indicated by SHAP. 
 
 | Feature Group | Interpretation |
 | --- | --- |
