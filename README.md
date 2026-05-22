@@ -43,23 +43,27 @@ Age shows a nonlinear relationship with income. Younger individuals and children
 <img width="790" height="490" alt="image" src="https://github.com/user-attachments/assets/7be139b6-eff4-4d35-abb4-6c8d6f6c46b5" />
 <img width="790" height="490" alt="image" src="https://github.com/user-attachments/assets/72f8c2eb-70e3-4c20-80fc-2bdf1f624d4f" />
 Fig.1 Age distribution (upper) and boxplot (lower) by income group. 
+
 ### 4.3 Work Intensity
 weeks_worked_in_year is one of the most important features. The low-income group contains many records with 0 weeks worked, while the high-income group is heavily concentrated around 52 weeks worked. This motivated the creation of work-intensity features such as worked_none_year, worked_full_year, and bucketed weeks-worked indicators.
 
 <img width="790" height="490" alt="image" src="https://github.com/user-attachments/assets/566f89c5-47a5-4ab2-8f99-9f0150fd95f2" />
 <img width="790" height="490" alt="image" src="https://github.com/user-attachments/assets/056e859f-279c-4b5d-91db-7fc553825374" />
 Fig.2 Weeks worked in year distribution (upper) and boxplot (lower) by income group. 
+
 ### 4.4 Money and Investment Features
 Money-related columns such as wage_per_hour, capital_gains, capital_losses, and dividends_from_stocks are highly zero-inflated and right-skewed. Both binary indicators and log-transformed versions were created so the model can capture whether a person has an income/investment source and the magnitude of that value.
 
 <img width="790" height="490" alt="image" src="https://github.com/user-attachments/assets/5a5c89d0-c97a-47b8-a615-f5720c4dd0f7" />
 <img width="790" height="490" alt="image" src="https://github.com/user-attachments/assets/6b9d65a7-967b-41c1-a74d-59cb934f4a92" />
 Fig.3 Money and Investment example:  wage per hour distribution (upper) and boxplot (lower) by income group. 
+
 ### 4.5 Categorical Features
 Several categorical features showed strong separation between income groups, including education, marital_stat, class_of_worker, major_industry_code, major_occupation_code, full_or_part_time_employment_stat, tax_filer_stat, and detailed_household_summary_in_household. Other features were excluded because they were dominated by “Not in universe” / “?”, overly sparse, or redundant with stronger features.
 
 <img width="989" height="490" alt="image" src="https://github.com/user-attachments/assets/6e895725-601b-4b07-aaa9-f141ac9cb1fd" />
 Fig.4 Categorical feature example:  veterans Benefits classes by income group. 
+
 ## 5. Sensitive Features
 To reduce fairness and compliance risk, the following sensitive or sensitive-adjacent variables were excluded from final model training:
 race
@@ -181,6 +185,7 @@ major_occupation_code_adm_support_including_clerical
 
 <img width="792" height="590" alt="image" src="https://github.com/user-attachments/assets/1ce11448-9206-4084-9793-5f05355597b3" />
 Fig.5 Feature importance ranking indicated by SHAP. 
+
 | Feature Group | Interpretation |
 | --- | --- |
 | Age bucket | Life stage is highly predictive |
