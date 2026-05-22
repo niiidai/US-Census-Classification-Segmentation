@@ -1,7 +1,7 @@
 # Income Classification and Customer Segmentation Report
 
 Income Classification and Customer Segmentation Report
-JPMC Take-Home Project
+
 ## 1. Executive Summary
 This project uses Census-style demographic, employment, household, and financial-profile data to predict whether an individual earns more than $50,000. The dataset is highly imbalanced: only about 6.3% of records belong to the high-income class. Because of this imbalance, accuracy alone is not a reliable model evaluation metric.
 After exploratory data analysis, feature engineering, and model training, the final XGBoost model achieved strong ranking performance:
@@ -73,10 +73,7 @@ Fig.4 Categorical feature example:  veterans Benefits classes by income group.
 Details can be find in notebooks/EDA.ipynb
 
 To reduce fairness and compliance risk, the following sensitive or sensitive-adjacent variables were excluded from final model training:
-race
-sex
-hispanic_origin
-country_of_birth_self
+race, sex, hispanic_origin, and country_of_birth_self. 
 These variables may contain predictive signal, but using them directly in an income prediction model could introduce fairness concerns, especially in a financial-services context. They should be retained only for exploratory analysis or post-model fairness checks.
 A stricter production version should also consider excluding or carefully auditing citizenship, country_of_birth_father, and country_of_birth_mother.
 ## 6. Feature Engineering
@@ -183,19 +180,7 @@ The model performs very well in ranking individuals by high-income likelihood, a
 Details can be find in notebooks/feature_engineering_and_modeling.ipynb
 
 SHAP was used to interpret the final XGBoost model. The most important individual features included:
-scaled_weeks_worked_in_year
-age_bucket_0_17
-tax_filer_stat_nonfiler
-detailed_household_summary_in_household_grouped
-scaled_num_persons_worked_for_employer
-scaled_dividends_from_stocks
-education_grouped_bachelors
-education_grouped_less_than_high_school
-education_grouped_graduate_degree
-scaled_capital_gains
-worked_full_year
-marital_stat_grouped_married
-major_occupation_code_adm_support_including_clerical
+scaled_weeks_worked_in_year, age_bucket_0_17, tax_filer_stat_nonfiler, detailed_household_summary_in_household_grouped, scaled_num_persons_worked_for_employer, scaled_dividends_from_stocks, education_grouped_bachelors, education_grouped_less_than_high_school, education_grouped_graduate_degree, scaled_capital_gains, worked_full_year, marital_stat_grouped_married, and major_occupation_code_adm_support_including_clerical
 
 <img width="792" height="590" alt="image" src="https://github.com/user-attachments/assets/1ce11448-9206-4084-9793-5f05355597b3" />
 
